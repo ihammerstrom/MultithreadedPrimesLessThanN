@@ -9,13 +9,25 @@
 
 using namespace std;
 
+/*
+Program which finds the quantity of numbers between 0 and a specified number using a specified number of threads.
+Also finds the quantity sequentially to find the percent speed change using threads.
+
+Ian Hammerstrom
+11/28/15
+*/
+
+
+
 int numPrimesRange(long int start, long int end);
 int isPrime(long int num);
+
 double get_wallTime() {
 	struct timeval tp;
 	gettimeofday(&tp,NULL);
 	return (double) (tp.tv_sec + tp.tv_usec/1000000.0);
 }
+
 
 int main(int argc, const char *argv[]){
 
@@ -43,17 +55,21 @@ int main(int argc, const char *argv[]){
 	numOfPrimes = 0;
 	startTime = get_wallTime();
 	
-	int temp;
+	
 	long int workSize = num/numThreads;
 	for(long int i=0; i< numThreads; i++){
 		cout << "Calculating number of primes between "<< i*workSize<< " and "<< (i+1)*workSize<<endl;
 		outputVector.push_back(async(launch::async, numPrimesRange, i*workSize, (i+1)*workSize));
 	}
+
+	int temp;
 	for(auto& t : outputVector){
 		int temp = t.get();
 		cout<< " - returned: "<<temp<<endl;
 		numOfPrimes += temp;
 	}
+
+
 	cout << "Calculating number of primes between "<< num - num%numThreads <<" and "<< num<<endl;
 	temp = numPrimesRange(num - num%numThreads, num); //clean up last remaining if number of threads doesnt evenly divide into num
 	cout<< " - returned: "<<temp<<endl;
@@ -69,14 +85,12 @@ int main(int argc, const char *argv[]){
 }
 
 int numPrimesRange(long int start, long int end){
-	
 	int numOfPrimes=0;
 	for(; start < end; start++){
 		if(isPrime(start)){
 			numOfPrimes++;
 		}
 	}
-	
 	return numOfPrimes;
 }
 
